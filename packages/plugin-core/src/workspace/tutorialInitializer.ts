@@ -74,6 +74,37 @@ export class TutorialInitializer
     const ctx = "TutorialInitializer.onWorkspaceOpen";
 
     const { wsRoot, vaults } = opts.ws;
+
+    // Register a special analytics handler for the tutorial:
+    const extension = getExtension();
+    if (extension.windowWatcher) {
+      extension.windowWatcher.registerActiveTextEditorChangedHandler((e) => {
+        const fileName = e?.document.uri.fsPath;
+
+        let eventName: TutorialEvents | undefined;
+
+        if (fileName?.endsWith("tutorial.md")) {
+          eventName = TutorialEvents.Tutorial_0_Show;
+        } else if (fileName?.endsWith("tutorial.1-navigation-basics.md")) {
+          eventName = TutorialEvents.Tutorial_1_Show;
+        } else if (fileName?.endsWith("tutorial.2-taking-notes.md")) {
+          eventName = TutorialEvents.Tutorial_2_Show;
+        } else if (fileName?.endsWith("tutorial.3-linking-your-notes.md")) {
+          eventName = TutorialEvents.Tutorial_3_Show;
+        } else if (fileName?.endsWith("tutorial.4-rich-formatting.md")) {
+          eventName = TutorialEvents.Tutorial_4_Show;
+        } else if (fileName?.endsWith("tutorial.5-conclusion.md")) {
+          eventName = TutorialEvents.Tutorial_5_Show;
+        }
+
+        if (eventName) {
+          AnalyticsUtils.track(eventName);
+        }
+      });
+    } else {
+      Logger.error({ ctx, msg: "Window Watcher unavailable!" });
+    }
+
     const vaultRelPath = VaultUtils.getRelPath(vaults[0]);
     const rootUri = vscode.Uri.file(
       path.join(wsRoot, vaultRelPath, "tutorial.md")
@@ -104,34 +135,6 @@ export class TutorialInitializer
 
     if (!initialSurveySubmitted) {
       await SurveyUtils.maybePromptInitialSurvey();
-    }
-
-    // Register a special analytics handler for the tutorial:
-    const extension = getExtension();
-    if (extension.windowWatcher) {
-      extension.windowWatcher.registerActiveTextEditorChangedHandler((e) => {
-        const fileName = e?.document.uri.fsPath;
-
-        let eventName: TutorialEvents | undefined;
-
-        if (fileName?.endsWith("tutorial.md")) {
-          eventName = TutorialEvents.Tutorial_0_Show;
-        } else if (fileName?.endsWith("tutorial.1-navigation-basics.md")) {
-          eventName = TutorialEvents.Tutorial_1_Show;
-        } else if (fileName?.endsWith("tutorial.2-taking-notes.md")) {
-          eventName = TutorialEvents.Tutorial_2_Show;
-        } else if (fileName?.endsWith("tutorial.3-linking-your-notes.md")) {
-          eventName = TutorialEvents.Tutorial_3_Show;
-        } else if (fileName?.endsWith("tutorial.4-rich-formatting.md")) {
-          eventName = TutorialEvents.Tutorial_4_Show;
-        } else if (fileName?.endsWith("tutorial.5-conclusion.md")) {
-          eventName = TutorialEvents.Tutorial_5_Show;
-        }
-
-        if (eventName) {
-          AnalyticsUtils.track(eventName);
-        }
-      });
     }
   }
 }
