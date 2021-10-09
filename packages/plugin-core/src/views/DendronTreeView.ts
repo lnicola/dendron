@@ -219,11 +219,10 @@ export class DendronTreeView {
         vaults,
       });
       const fname = NoteUtils.uri2Fname(uri);
-      const note = NoteUtils.getNoteByFnameV5({
+      const note = NoteUtils.getNoteByFnameV6({
         fname,
         vault,
-        notes: engine.notes,
-        wsRoot,
+        engine,
       }) as NoteProps;
       if (note && !this.pause) {
         this.treeView.reveal(note.id);

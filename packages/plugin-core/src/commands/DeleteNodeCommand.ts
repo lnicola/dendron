@@ -1,7 +1,6 @@
 import {
   DVault,
   EngineDeletePayload,
-  NoteProps,
   NoteUtils,
   SchemaUtils,
   VaultUtils,
@@ -12,7 +11,7 @@ import { PickerUtilsV2 } from "../components/lookup/utils";
 import { DENDRON_COMMANDS } from "../constants";
 import { Logger } from "../logger";
 import { DendronClientUtilsV2, VSCodeUtils } from "../utils";
-import { getEngine, getExtension, getDWorkspace } from "../workspace";
+import { getEngine, getExtension } from "../workspace";
 import { BasicCommand } from "./base";
 
 type CommandOpts = {
@@ -54,19 +53,18 @@ export class DeleteNodeCommand extends BasicCommand<
       const client = getExtension().getEngine();
       if (mode === "note") {
         const vault = PickerUtilsV2.getOrPromptVaultForOpenEditor();
-        const note = NoteUtils.getNoteByFnameV5({
+        const note = NoteUtils.getNoteByFnameV6({
           fname,
           vault,
-          notes: getEngine().notes,
-          wsRoot: getDWorkspace().wsRoot,
-        }) as NoteProps;
-        const out = (await client.deleteNote(note.id)) as EngineDeletePayload;
+          engine: getEngine(),
+        });
+        const out = (await client.deleteNote(note!.id)) as EngineDeletePayload;
         if (out.error) {
           Logger.error({ ctx, msg: "error deleting node", error: out.error });
           return;
         }
         window.showInformationMessage(
-          formatDeletedMsg({ fsPath, vault: note.vault })
+          formatDeletedMsg({ fsPath, vault: note!.vault })
         );
         return out;
       } else {

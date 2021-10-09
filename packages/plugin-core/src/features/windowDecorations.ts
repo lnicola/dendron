@@ -50,10 +50,9 @@ import {
 const DECORATION_UPDATE_DELAY = 100;
 /** Some decorations are expensive. If a note is longer than this many characters, avoid the expensive decorations.
  *
- * This is just a workaround because `getNotesByFname` is too expensive right now, because it scans through all notes.
- * If you are reading this comment in the future and that's no longer the case, feel free to remove this workaround!
+ * Raised the limit for this workaround after optimizing getNotesByFname performance. Should be faster now.
  */
-const DEFAULT_EXPENSIVE_DECORATIONS_LIMIT = 4096;
+const DEFAULT_EXPENSIVE_DECORATIONS_LIMIT = 262144;
 
 /** Notes that we warned the user about expensive decorations being disabled. Tracked to avoid repeatedly warning. */
 const WARNED_LONG_NOTE = new Set<string>();
@@ -317,7 +316,7 @@ function decorateTag({
     // Getting the color requires a lot of lookups by fname, and can be very expensive
     const { color: backgroundColor, type } = NoteUtils.color({
       fname,
-      notes: getDWorkspace().engine.notes,
+      engine: getDWorkspace().engine,
     });
     if (
       type === "configured" ||
@@ -364,7 +363,8 @@ function linkedNoteType({
   // Doing lookups to check if a note exists is expensive
   if (!doExpensiveDecorations) return DECORATION_TYPE.wikiLink;
   const ctx = "linkedNoteType";
-  const { notes, vaults } = getDWorkspace().engine;
+  const { engine } = getDWorkspace();
+  const { vaults } = engine;
   const vault = vaultName
     ? VaultUtils.getVaultByName({ vname: vaultName, vaults })
     : undefined;
@@ -378,10 +378,9 @@ function linkedNoteType({
     matchingNotes = documentNote ? [documentNote] : [];
   } else if (fname) {
     try {
-      matchingNotes = NoteUtils.getNotesByFname({
+      matchingNotes = engine.getNotesByFname({
         fname,
         vault,
-        notes,
       });
     } catch (err) {
       Logger.info({

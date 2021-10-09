@@ -155,11 +155,10 @@ export class WorkspaceWatcher {
         vaults: eclient.vaults,
         wsRoot: getDWorkspace().wsRoot,
       });
-      const note = NoteUtils.getNoteByFnameV5({
+      const note = NoteUtils.getNoteByFnameV6({
         fname,
         vault,
-        notes: eclient.notes,
-        wsRoot: getDWorkspace().wsRoot,
+        engine: eclient,
       }) as NoteProps;
 
       const content = ev.document.getText();

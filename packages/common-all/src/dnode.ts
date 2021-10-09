@@ -788,6 +788,19 @@ export class NoteUtils {
     return out;
   }
 
+  static getNoteByFnameV6({
+    fname,
+    engine,
+    vault,
+  }: {
+    fname: string;
+    engine: DEngineClient;
+    vault: DVault;
+  }): NoteProps | undefined {
+    const notes = engine.getNotesByFname({ fname, vault });
+    return notes[0];
+  }
+
   /** If `to vault` is defined, returns note from that vault
    *  else searches all the vaults, to get the note with matching fname.
    * If more than one notes are with same fname, returns the note with same vault as `fromVault` */
@@ -1119,7 +1132,11 @@ export class NoteUtils {
    * @param notes: All notes in `engine.notes`, used to check the ancestors of `note`.
    * @returns The color, and whether this color was randomly generated or explicitly defined.
    */
-  static color(opts: { fname: string; vault?: DVault; notes: NotePropsDict }): {
+  static color(opts: {
+    fname: string;
+    vault?: DVault;
+    engine: DEngineClient;
+  }): {
     color: string;
     type: "configured" | "generated";
   } {
@@ -1153,17 +1170,16 @@ export class NoteUtils {
   static *ancestors(opts: {
     fname: string;
     vault?: DVault;
-    notes: NotePropsDict;
+    engine: DEngineClient;
     includeSelf?: boolean;
     nonStubOnly?: boolean;
   }): Generator<NoteProps> {
-    const { fname, notes, includeSelf, nonStubOnly } = opts;
+    const { fname, engine, includeSelf, nonStubOnly } = opts;
     let { vault } = opts;
     let parts = fname.split(".");
-    let note: NoteProps | undefined = NoteUtils.getNotesByFname({
+    let note: NoteProps | undefined = engine.getNotesByFname({
       fname,
       vault,
-      notes,
     })[0];
 
     // Check if we need this note itself

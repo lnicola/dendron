@@ -218,17 +218,16 @@ export const resolveCompletionItem = sentryReportingCallback(
       return;
 
     const engine = getDWorkspace().engine;
-    const { vaults, notes, wsRoot } = engine;
+    const { vaults, wsRoot } = engine;
     const vault = VaultUtils.getVaultByName({ vname, vaults });
     if (_.isUndefined(vault)) {
       Logger.info({ ctx, msg: "vault not found", fname, vault, wsRoot });
       return;
     }
-    const note = NoteUtils.getNoteByFnameV5({
+    const note = NoteUtils.getNoteByFnameV6({
       fname,
       vault,
-      notes,
-      wsRoot,
+      engine,
     });
     if (_.isUndefined(note)) {
       Logger.info({ ctx, msg: "note not found", fname, vault, wsRoot });
@@ -345,10 +344,9 @@ export async function provideBlockCompletionItems(
       : undefined;
     // If we couldn't find the linked note, don't do anything
     if (_.isNull(link) || _.isUndefined(link.value)) return;
-    note = NoteUtils.getNotesByFname({
+    note = engine.getNotesByFname({
       fname: link.value,
       vault,
-      notes: engine.notes,
     })[0];
     otherFile = true;
   } else {

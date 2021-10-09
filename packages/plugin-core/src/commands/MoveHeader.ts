@@ -68,7 +68,8 @@ export class MoveHeaderCommand extends BasicCommand<
   });
 
   private noNodesToMoveError = new DendronError({
-    message: "There are no nodes to move. If your selection is valid, try again after reloading VSCode.",
+    message:
+      "There are no nodes to move. If your selection is valid, try again after reloading VSCode.",
     severity: ERROR_SEVERITY.MINOR,
   });
 
@@ -256,7 +257,7 @@ export class MoveHeaderCommand extends BasicCommand<
     location: Location,
     engine: EngineAPIService
   ): NoteProps | undefined {
-    const { wsRoot, vaults, notes } = engine;
+    const { wsRoot, vaults } = engine;
     const fsPath = location.uri.fsPath;
     const fname = NoteUtils.normalizeFname(path.basename(fsPath));
     const vault = VaultUtils.getVaultByNotePath({
@@ -264,33 +265,29 @@ export class MoveHeaderCommand extends BasicCommand<
       wsRoot,
       vaults,
     });
-    const note = NoteUtils.getNoteByFnameV5({
+    const note = NoteUtils.getNoteByFnameV6({
       fname,
-      notes,
       vault,
-      wsRoot,
+      engine,
     });
     return note;
   }
 
-  private hasAnchorsToUpdate(
-    ref: FoundRefT,
-    anchorNamesToUpdate: string[],
-  ) {
+  private hasAnchorsToUpdate(ref: FoundRefT, anchorNamesToUpdate: string[]) {
     const matchText = ref.matchText;
     const wikiLinkRegEx = /\[\[(?<text>.+?)\]\]/;
-        
+
     const wikiLinkMatch = wikiLinkRegEx.exec(matchText);
 
     if (wikiLinkMatch && wikiLinkMatch.groups?.text) {
       let processed = wikiLinkMatch.groups.text;
       if (processed.includes("|")) {
-        const [ _alias, link ] = processed.split("|");
+        const [_alias, link] = processed.split("|");
         processed = link;
       }
 
       if (processed.includes("#")) {
-        const [ _fname, anchor ] = processed.split("#");
+        const [_fname, anchor] = processed.split("#");
         return anchorNamesToUpdate.includes(anchor);
       } else {
         return false;

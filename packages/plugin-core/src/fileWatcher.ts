@@ -116,12 +116,11 @@ export class FileWatcher {
         note = file2Note(fsPath, vault);
 
         // check if note exist as
-        const maybeNote = NoteUtils.getNoteByFnameV5({
+        const maybeNote = NoteUtils.getNoteByFnameV6({
           fname,
           vault,
-          notes: engine.notes,
-          wsRoot,
-        }) as NoteProps;
+          engine,
+        });
         if (maybeNote) {
           note = {
             ...note,

@@ -82,12 +82,11 @@ suite("windowDecorations", function () {
             wsRoot,
           });
         },
-        onInit: async ({ vaults, engine, wsRoot }) => {
-          const note = NoteUtils.getNoteByFnameV5({
+        onInit: async ({ vaults, engine }) => {
+          const note = NoteUtils.getNoteByFnameV6({
             fname: FNAME,
-            notes: engine.notes,
+            engine,
             vault: vaults[0],
-            wsRoot,
           });
           const editor = await VSCodeUtils.openNote(note!);
           const document = editor.document;
@@ -196,12 +195,11 @@ suite("windowDecorations", function () {
             wsRoot,
           });
         },
-        onInit: async ({ vaults, engine, wsRoot }) => {
-          const note = NoteUtils.getNoteByFnameV5({
+        onInit: async ({ vaults, engine }) => {
+          const note = NoteUtils.getNoteByFnameV6({
             fname: FNAME,
-            notes: engine.notes,
+            engine,
             vault: vaults[0],
-            wsRoot,
           });
           const editor = await VSCodeUtils.openNote(note!);
           const document = editor.document;
@@ -269,12 +267,11 @@ suite("windowDecorations", function () {
             wsRoot,
           });
         },
-        onInit: async ({ vaults, engine, wsRoot }) => {
-          const note = NoteUtils.getNoteByFnameV5({
+        onInit: async ({ vaults, engine }) => {
+          const note = NoteUtils.getNoteByFnameV6({
             fname: FNAME,
-            notes: engine.notes,
             vault: vaults[0],
-            wsRoot,
+            engine,
           });
           const editor = await VSCodeUtils.openNote(note!);
           const document = editor.document;
@@ -306,12 +303,11 @@ suite("windowDecorations", function () {
             wsRoot,
           });
         },
-        onInit: async ({ vaults, engine, wsRoot }) => {
-          const note = NoteUtils.getNoteByFnameV5({
+        onInit: async ({ vaults, engine }) => {
+          const note = NoteUtils.getNoteByFnameV6({
             fname: FNAME,
-            notes: engine.notes,
+            engine,
             vault: vaults[0],
-            wsRoot,
           });
           const editor = await VSCodeUtils.openNote(note!);
           const document = editor.document;

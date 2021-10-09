@@ -275,7 +275,7 @@ export class VSCodeUtils {
   }
 
   static getNoteFromDocument(document: vscode.TextDocument) {
-    const { engine, wsRoot } = getDWorkspace();
+    const { engine } = getDWorkspace();
     const txtPath = document.uri.fsPath;
     const fname = path.basename(txtPath, ".md");
     let vault: DVault;
@@ -285,11 +285,10 @@ export class VSCodeUtils {
       // No vault
       return undefined;
     }
-    return NoteUtils.getNoteByFnameV5({
+    return NoteUtils.getNoteByFnameV6({
       fname,
       vault,
-      wsRoot,
-      notes: engine.notes,
+      engine,
     });
   }
 
@@ -735,11 +734,10 @@ export class DendronClientUtilsV2 {
       case "childOfDomainNamespace": {
         out = DNodeUtils.domainName(fname);
         const vault = PickerUtilsV2.getOrPromptVaultForOpenEditor();
-        const domain = NoteUtils.getNoteByFnameV5({
+        const domain = NoteUtils.getNoteByFnameV6({
           fname,
-          notes: opts.engine.notes,
+          engine: opts.engine,
           vault,
-          wsRoot: getDWorkspace().wsRoot,
         });
         if (domain && domain.schema) {
           const smod = opts.engine.schemas[domain.schema.moduleId];

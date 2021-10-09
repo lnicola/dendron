@@ -32,12 +32,10 @@ suite("Scratch Notes", function () {
         onInit: async ({ vaults }) => {
           const vault = vaults[0];
           const fname = NOTE_PRESETS_V4.NOTE_SIMPLE.fname;
-          const notes = getDWorkspace().engine.notes;
-          const note = NoteUtils.getNoteByFnameV5({
+          const note = NoteUtils.getNoteByFnameV6({
             fname,
-            notes,
             vault,
-            wsRoot: getDWorkspace().wsRoot,
+            engine: getDWorkspace().engine,
           });
           const editor = await VSCodeUtils.openNote(note!);
           const SIMPLE_SELECTION = new vscode.Selection(7, 0, 7, 12);
@@ -99,12 +97,10 @@ suite("Scratch Notes", function () {
         onInit: async ({ vaults }) => {
           const vault = vaults[1];
           const fname = NOTE_PRESETS_V4.NOTE_SIMPLE.fname;
-          const notes = getDWorkspace().engine.notes;
-          const note = NoteUtils.getNoteByFnameV5({
+          const note = NoteUtils.getNoteByFnameV6({
             fname,
-            notes,
             vault,
-            wsRoot: getDWorkspace().wsRoot,
+            engine: getDWorkspace().engine,
           });
           const editor = await VSCodeUtils.openNote(note!);
           const SIMPLE_SELECTION = new vscode.Selection(7, 0, 7, 12);

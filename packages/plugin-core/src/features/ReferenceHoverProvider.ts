@@ -1,15 +1,10 @@
-import {
-  DVault,
-  NoteProps,
-  NoteUtils,
-  VaultUtils
-} from "@dendronhq/common-all";
+import { DVault, NoteProps, VaultUtils } from "@dendronhq/common-all";
 import { vault2Path } from "@dendronhq/common-server";
 import {
   AnchorUtils,
   DendronASTDest,
   MDUtilsV5,
-  ProcFlavor
+  ProcFlavor,
 } from "@dendronhq/engine-server";
 import * as Sentry from "@sentry/node";
 import fs from "fs-extra";
@@ -23,7 +18,7 @@ import {
   containsNonDendronUri,
   containsOtherKnownExts,
   getReferenceAtPosition,
-  isUncPath
+  isUncPath,
 } from "../utils/md";
 import { DendronExtension, getDWorkspace, getEngine } from "../workspace";
 
@@ -131,9 +126,8 @@ export default class ReferenceHoverProvider implements vscode.HoverProvider {
 
       // Check if what's being referenced is a note.
       let note: NoteProps;
-      const maybeNotes = NoteUtils.getNotesByFname({
+      const maybeNotes = engine.getNotesByFname({
         fname: refAtPos.ref,
-        notes: engine.notes,
         // If vault is specified, search only that vault. Otherwise search all vaults.
         vault,
       });

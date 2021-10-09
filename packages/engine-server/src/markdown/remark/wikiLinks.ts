@@ -127,9 +127,8 @@ function attachCompiler(proc: Unified.Processor, opts?: CompilerOpts) {
 
       if (copts.useId && dest === DendronASTDest.HTML) {
         // TODO: check for vault
-        const notes = NoteUtils.getNotesByFname({
+        const notes = engine.getNotesByFname({
           fname: value,
-          notes: engine.notes,
           vault,
         });
         const { error, note } = getNoteOrError(notes, value);
@@ -253,7 +252,8 @@ function attachParser(proc: Unified.Processor) {
     if (match) {
       const linkMatch = match[1].trim();
       try {
-        const { value, alias, anchorHeader, vaultName, sameFile } = parseLink(linkMatch);
+        const { value, alias, anchorHeader, vaultName, sameFile } =
+          parseLink(linkMatch);
         return eat(match[0])({
           type: DendronASTTypes.WIKI_LINK,
           value,

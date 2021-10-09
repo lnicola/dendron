@@ -32,12 +32,10 @@ suite("Scratch Notes", function () {
         onInit: async ({ vaults }) => {
           const vault = vaults[1];
           const fname = NOTE_PRESETS_V4.NOTE_SIMPLE.fname;
-          const notes = getDWorkspace().engine.notes;
-          const note = NoteUtils.getNoteByFnameV5({
+          const note = NoteUtils.getNoteByFnameV6({
+            engine: getDWorkspace().engine,
             fname,
-            notes,
             vault,
-            wsRoot: getDWorkspace().wsRoot,
           });
           await VSCodeUtils.openNote(note!);
           await new NoteLookupCommand().run({
@@ -63,12 +61,10 @@ suite("Scratch Notes", function () {
         onInit: async ({ vaults }) => {
           const vault = vaults[1];
           const fname = "daily";
-          const notes = getDWorkspace().engine.notes;
-          const note = NoteUtils.getNoteByFnameV5({
+          const note = NoteUtils.getNoteByFnameV6({
             fname,
-            notes,
             vault,
-            wsRoot: getDWorkspace().wsRoot,
+            engine: getDWorkspace().engine,
           });
           await VSCodeUtils.openNote(note!);
           await new NoteLookupCommand().run({

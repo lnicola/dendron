@@ -175,8 +175,7 @@ export class ProviderAcceptHooks {
     // setup vars
     const oldVault = PickerUtilsV2.getVaultForOpenEditor();
     const newVault = quickpick.vault ? quickpick.vault : oldVault;
-    const { wsRoot, engine } = getDWorkspace();
-    const notes = engine.notes;
+    const { engine } = getDWorkspace();
 
     // get old note
     const editor = VSCodeUtils.getActiveTextEditor() as TextEditor;
@@ -189,11 +188,10 @@ export class ProviderAcceptHooks {
       : selectedItem.fname;
 
     // get new note
-    const newNote = NoteUtils.getNoteByFnameV5({
+    const newNote = NoteUtils.getNoteByFnameV6({
       fname,
-      notes,
+      engine,
       vault: newVault,
-      wsRoot,
     });
     const isStub = newNote?.stub;
     if (newNote && !isStub) {

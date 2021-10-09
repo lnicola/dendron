@@ -105,11 +105,10 @@ export class NoteSyncService {
       wsRoot: getDWorkspace().wsRoot,
       fsPath: uri.fsPath,
     });
-    const noteHydrated = NoteUtils.getNoteByFnameV5({
+    const noteHydrated = NoteUtils.getNoteByFnameV6({
       fname,
       vault,
-      notes: engine.notes,
-      wsRoot: getDWorkspace().wsRoot,
+      engine,
     }) as NoteProps;
 
     // NOTE: it might be worthwile to only do this after checking that the current note is still active

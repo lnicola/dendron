@@ -477,7 +477,15 @@ export type DEngine = DCommonProps &
 /**
  * Implements the engine interface but has no backend store
  */
-export type DEngineClient = Omit<DEngine, "store">;
+export type DEngineClient = Omit<DEngine, "store"> & {
+  getNotesByFname({
+    fname,
+    vault,
+  }: {
+    fname: string;
+    vault?: DVault;
+  }): NoteProps[];
+};
 
 export type DStore = DCommonProps &
   DCommonMethods & {

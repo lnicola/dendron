@@ -34,9 +34,8 @@ export default class DefinitionProvider implements vscode.DefinitionProvider {
           Logger.error({ msg: `${refAtPos.vaultName} is not defined` });
         }
       }
-      const notes = NoteUtils.getNotesByFname({
+      const notes = engine.getNotesByFname({
         fname: refAtPos.ref,
-        notes: engine.notes,
         vault,
       });
       const uris = notes.map((note) =>

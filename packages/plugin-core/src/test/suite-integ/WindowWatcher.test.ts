@@ -57,7 +57,7 @@ suite("WindowWatcher", function () {
     test("does when opening new note", (done) => {
       runLegacyMultiWorkspaceTest({
         ctx,
-        onInit: async ({ vaults, wsRoot, engine }) => {
+        onInit: async ({ vaults, engine }) => {
           // Try to make sure we're opening this for the first time
           await VSCodeUtils.closeAllEditors();
 
@@ -67,10 +67,9 @@ suite("WindowWatcher", function () {
           watcher.activate(ctx);
           // Open a note
           await VSCodeUtils.openNote(
-            NoteUtils.getNoteByFnameV5({
+            NoteUtils.getNoteByFnameV6({
               vault: vaults[0],
-              notes: engine.notes,
-              wsRoot,
+              engine,
               fname: "root",
             })!
           );
@@ -84,7 +83,7 @@ suite("WindowWatcher", function () {
     test("does not when switching between open notes", (done) => {
       runLegacyMultiWorkspaceTest({
         ctx,
-        onInit: async ({ vaults, wsRoot, engine }) => {
+        onInit: async ({ vaults, engine }) => {
           // Try to make sure we're opening this for the first time
           await VSCodeUtils.closeAllEditors();
           getExtension().workspaceWatcher = new WorkspaceWatcher();
@@ -92,10 +91,9 @@ suite("WindowWatcher", function () {
           watcher = new WindowWatcher();
           watcher.activate(ctx);
           // Open a note
-          const first = NoteUtils.getNoteByFnameV5({
+          const first = NoteUtils.getNoteByFnameV6({
             vault: vaults[0],
-            notes: engine.notes,
-            wsRoot,
+            engine,
             fname: "root",
           })!;
           await VSCodeUtils.openNote(first);
@@ -108,10 +106,9 @@ suite("WindowWatcher", function () {
           );
           checkPosition(3);
           // Switch to another note
-          const second = NoteUtils.getNoteByFnameV5({
+          const second = NoteUtils.getNoteByFnameV6({
             vault: vaults[1],
-            notes: engine.notes,
-            wsRoot,
+            engine,
             fname: "root",
           })!;
           await VSCodeUtils.openNote(second);

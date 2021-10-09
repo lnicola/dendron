@@ -188,6 +188,17 @@ export class DendronEngineV2 implements DEngine {
     return this.store.schemas;
   }
 
+  public getNotesByFname({
+    fname,
+    vault,
+  }: {
+    fname: string;
+    vault?: DVault;
+  }): NoteProps[] {
+    // TODO: Optimize this in the same way as `DendronEngineClient`
+    return NoteUtils.getNotesByFname({ fname, vault, notes: this.store.notes });
+  }
+
   get vaults(): DVault[] {
     return this._vaults;
   }

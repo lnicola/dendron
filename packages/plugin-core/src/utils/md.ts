@@ -477,7 +477,7 @@ export const findReferences = async (
   const { engine } = getDWorkspace();
   // clean for anchor
   const fname = ref;
-  const notes = NoteUtils.getNotesByFname({ fname, notes: engine.notes });
+  const notes = engine.getNotesByFname({ fname });
   const notesWithRefs = await Promise.all(
     notes.flatMap((note) => {
       return NoteUtils.getNotesWithLinkTo({

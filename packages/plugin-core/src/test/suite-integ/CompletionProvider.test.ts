@@ -53,9 +53,8 @@ suite("completionProvider", function () {
           expect(items!.length).toEqual(7);
           for (const item of items!) {
             // All suggested items exist
-            const found = NoteUtils.getNotesByFname({
+            const found = engine.getNotesByFname({
               fname: item.label as string,
-              notes: engine.notes,
             });
             expect(found.length > 0).toBeTruthy();
           }
@@ -131,9 +130,8 @@ suite("completionProvider", function () {
           expect(items!.length).toEqual(2);
           for (const item of items!) {
             // All suggested items exist
-            const found = NoteUtils.getNotesByFname({
+            const found = engine.getNotesByFname({
               fname: `${TAGS_HIERARCHY}${item.label}`,
-              notes: engine.notes,
             });
             expect(found.length > 0).toBeTruthy();
           }
@@ -182,9 +180,8 @@ suite("completionProvider", function () {
           expect(items!.length).toEqual(2);
           for (const item of items!) {
             // All suggested items exist
-            const found = NoteUtils.getNotesByFname({
+            const found = engine.getNotesByFname({
               fname: `${TAGS_HIERARCHY}${item.label}`,
-              notes: engine.notes,
             });
             expect(found.length > 0).toBeTruthy();
           }
@@ -233,9 +230,8 @@ suite("completionProvider", function () {
           expect(items!.length).toEqual(2);
           for (const item of items!) {
             // All suggested items exist
-            const found = NoteUtils.getNotesByFname({
+            const found = engine.getNotesByFname({
               fname: `${USERS_HIERARCHY}${item.label}`,
-              notes: engine.notes,
             });
             expect(found.length > 0).toBeTruthy();
           }

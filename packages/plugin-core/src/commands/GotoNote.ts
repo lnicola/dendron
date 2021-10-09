@@ -113,10 +113,9 @@ export class GotoNoteCommand extends BasicCommand<CommandOpts, CommandOutput> {
       } else {
         // Otherwise, we need to guess or prompt the vault. If linked note
         // exists in some vault, we might be able to use that.
-        const notes = NoteUtils.getNotesByFname({
+        const notes = engine.getNotesByFname({
           fname: opts.qs,
           vault: opts.vault,
-          notes: engine.notes,
         });
         if (notes.length === 1) {
           // There's just one note, so that's the one we'll go with.

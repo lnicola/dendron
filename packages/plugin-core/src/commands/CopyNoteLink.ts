@@ -1,11 +1,11 @@
-import { isBlockAnchor, NoteProps, NoteUtils } from "@dendronhq/common-all";
+import { isBlockAnchor, NoteUtils } from "@dendronhq/common-all";
 import _ from "lodash";
 import { TextEditor, window } from "vscode";
 import { PickerUtilsV2 } from "../components/lookup/utils";
 import { DENDRON_COMMANDS } from "../constants";
 import { clipboard, DendronClientUtilsV2, VSCodeUtils } from "../utils";
 import { getSelectionAnchors } from "../utils/editor";
-import { getEngine, getDWorkspace } from "../workspace";
+import { getEngine } from "../workspace";
 import { BasicCommand } from "./base";
 
 type CommandOpts = {};
@@ -32,13 +32,11 @@ export class CopyNoteLinkCommand extends BasicCommand<
     const fname = NoteUtils.uri2Fname(editor.document.uri);
 
     const vault = PickerUtilsV2.getOrPromptVaultForOpenEditor();
-    const notes = getEngine().notes;
-    const note = NoteUtils.getNoteByFnameV5({
+    const note = NoteUtils.getNoteByFnameV6({
       fname,
       vault,
-      notes,
-      wsRoot: getDWorkspace().wsRoot,
-    }) as NoteProps;
+      engine: getEngine(),
+    });
     if (!note) {
       throw Error(
         `${fname} not found in engine! Try saving this file and running "Dendron: Reload Index"`

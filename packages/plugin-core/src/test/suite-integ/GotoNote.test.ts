@@ -13,7 +13,6 @@ import * as vscode from "vscode";
 import { GotoNoteCommand } from "../../commands/GotoNote";
 import { PickerUtilsV2 } from "../../components/lookup/utils";
 import { VSCodeUtils } from "../../utils";
-import { getDWorkspace } from "../../workspace";
 import { GOTO_NOTE_PRESETS } from "../presets/GotoNotePreset";
 import { getActiveEditorBasename } from "../testUtils";
 import { expect, LocationTestUtils } from "../testUtilsv2";
@@ -53,11 +52,10 @@ suite("GotoNote", function () {
         },
         onInit: async ({ vaults, engine }) => {
           const vault = vaults[0];
-          const note = NoteUtils.getNoteByFnameV5({
+          const note = NoteUtils.getNoteByFnameV6({
             fname: "foo",
-            notes: engine.notes,
+            engine,
             vault,
-            wsRoot: getDWorkspace().wsRoot,
           }) as NoteProps;
           expect(_.pick(note, ["fname", "stub"])).toEqual({
             fname: "foo",

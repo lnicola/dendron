@@ -69,12 +69,12 @@ const tryGetNotes = ({
   fname,
   vname,
   vaults,
-  notes,
+  engine,
 }: {
   fname: string;
   vname?: string;
   vaults: DVault[];
-  notes: NotePropsDict;
+  engine: DEngineClient;
 }) => {
   const maybeVault = vname
     ? VaultUtils.getVaultByName({
@@ -82,9 +82,8 @@ const tryGetNotes = ({
         vname,
       })
     : undefined;
-  const maybeNotes = NoteUtils.getNotesByFname({
+  const maybeNotes = engine.getNotesByFname({
     fname,
-    notes,
     vault: maybeVault,
   });
   if (maybeNotes.length === 0) {
@@ -520,7 +519,7 @@ export function convertNoteRefASTV2(
       fname,
       vname,
       vaults: engine.vaults,
-      notes: engine.notes,
+      engine,
     });
 
     // check for edge cases

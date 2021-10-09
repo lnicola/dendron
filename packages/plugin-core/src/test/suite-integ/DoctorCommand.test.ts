@@ -118,7 +118,7 @@ suite("DoctorCommandTest", function () {
           },
         });
       },
-      onInit: async ({ wsRoot, engine, vaults }) => {
+      onInit: async ({ engine, vaults }) => {
         await VSCodeUtils.openNote(note);
 
         const cmd = new DoctorCommand();
@@ -129,9 +129,8 @@ suite("DoctorCommandTest", function () {
           })
         );
         await cmd.run();
-        note = NoteUtils.getNoteByFnameV5({
-          wsRoot,
-          notes: engine.notes,
+        note = NoteUtils.getNoteByFnameV6({
+          engine,
           fname: "test",
           vault: vaults[0],
         })!;
@@ -541,11 +540,10 @@ suite("REGENERATE_NOTE_ID", function () {
               Promise.resolve("proceed") as Thenable<vscode.QuickPickItem>
             );
           await cmd.run();
-          const note = NoteUtils.getNoteByFnameV5({
+          const note = NoteUtils.getNoteByFnameV6({
             fname: "foo",
-            notes: engine.notes,
+            engine,
             vault,
-            wsRoot,
           });
           expect(note?.id).toNotEqual(oldId);
         } finally {
@@ -598,23 +596,20 @@ suite("REGENERATE_NOTE_ID", function () {
               Promise.resolve("proceed") as Thenable<vscode.QuickPickItem>
             );
           await cmd.run();
-          const root = NoteUtils.getNoteByFnameV5({
+          const root = NoteUtils.getNoteByFnameV6({
             fname: "root",
-            notes: engine.notes,
+            engine,
             vault,
-            wsRoot,
           });
-          const foo = NoteUtils.getNoteByFnameV5({
+          const foo = NoteUtils.getNoteByFnameV6({
             fname: "foo",
-            notes: engine.notes,
+            engine,
             vault,
-            wsRoot,
           });
-          const bar = NoteUtils.getNoteByFnameV5({
+          const bar = NoteUtils.getNoteByFnameV6({
             fname: "bar",
-            notes: engine.notes,
+            engine,
             vault,
-            wsRoot,
           });
           expect(root?.id).toNotEqual(oldRootId);
           expect(foo?.id).toNotEqual(oldFooId);

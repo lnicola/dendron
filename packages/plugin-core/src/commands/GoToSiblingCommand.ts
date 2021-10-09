@@ -51,11 +51,10 @@ export class GoToSiblingCommand extends BasicCommand<
         wsRoot,
         fsPath: maybeTextEditor.document.uri.fsPath,
       });
-      const rootNode = NoteUtils.getNoteByFnameV5({
+      const rootNode = NoteUtils.getNoteByFnameV6({
         fname: value,
         vault,
-        notes: engine.notes,
-        wsRoot,
+        engine,
       }) as NoteProps;
       if (_.isUndefined(rootNode)) {
         throw new DendronError({ message: "no root node found" });
@@ -65,9 +64,8 @@ export class GoToSiblingCommand extends BasicCommand<
         .concat([rootNode]);
     } else {
       const vault = PickerUtilsV2.getOrPromptVaultForOpenEditor();
-      const note = NoteUtils.getNotesByFname({
+      const note = engine.getNotesByFname({
         fname: value,
-        notes: engine.notes,
         vault,
       })[0] as NoteProps;
       respNodes = engine.notes[note.parent as string].children

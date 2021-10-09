@@ -56,7 +56,49 @@ type DendronEngineClientOpts = {
 };
 
 export class DendronEngineClient implements DEngineClient {
-  public notes: NotePropsDict;
+  /** Maps note ids to note objects. */
+  private _notes: NotePropsDict;
+  /** Maps lowercase fnames to note ids. */
+  private fname2ids: { [fname: string]: string[] };
+
+  private addFName2idsEntry({ fname, id }: { fname: string; id: string }) {
+    const key = fname.toLowerCase();
+    if (this.fname2ids[key] === undefined) this.fname2ids[key] = [];
+    this.fname2ids[key].push(id);
+  }
+
+  /** Proxies sets to the note object mapping so that `_notes` and `fname2ids` can be kept in sync. */
+  private notesProxy: NotePropsDict;
+
+  get notes(): NotePropsDict {
+    return this.notesProxy;
+  }
+  set notes(newNotes: NotePropsDict) {
+    // If the `notes` is assigned a new dict, we need to rebuild the fnames map.
+    this._notes = newNotes;
+    this.fname2ids = {};
+    _.values(newNotes).forEach(this.addFName2idsEntry.bind(this));
+    // ALso need to recreate the proxy since the target object is now different, I think?
+    this.notesProxy = new Proxy<NotePropsDict>(
+      this._notes,
+      this.notesProxyHandler
+    );
+  }
+
+  public getNotesByFname({
+    fname,
+    vault,
+  }: {
+    fname: string;
+    vault?: DVault;
+  }): NoteProps[] {
+    let notes =
+      this.fname2ids[fname.toLowerCase()]?.map((id) => this._notes[id]) || [];
+    if (vault)
+      notes = notes.filter((note) => VaultUtils.isEqualV2(note.vault, vault));
+    return notes;
+  }
+
   public wsRoot: string;
   public schemas: SchemaModuleDict;
   public links: DLink[];
@@ -100,6 +142,38 @@ export class DendronEngineClient implements DEngineClient {
     return _.toInteger(_.trim(fs.readFileSync(portFile, { encoding: "utf8" })));
   }
 
+  /** A proxy to interject changes to the `notes` and reflect them in `fname2ids`. */
+  private notesProxyHandler = {
+    get: (_target: NotePropsDict, getId: string) => {
+      return this._notes[getId];
+    },
+    ownKeys: () => {
+      // Doesn't own any keys, all keys are ids in the map
+      return [];
+    },
+    set: (_target: NotePropsDict, setId: string, value: NoteProps): boolean => {
+      const oldValue: NoteProps | undefined = this._notes[setId];
+      const oldFname = oldValue?.fname.toLowerCase();
+      const newFName = value.fname.toLowerCase();
+      this._notes[setId] = value;
+      if (oldValue !== undefined && oldFname !== newFName) {
+        // This note already existed and has been renamed, so the old entry is now stale
+        _.remove(this.fname2ids[oldFname], (id) => id === oldValue?.id);
+      }
+      this.addFName2idsEntry(value);
+      return true;
+    },
+    delete: (_target: NotePropsDict, deleteId: string): boolean => {
+      const oldValue: NoteProps | undefined = this._notes[deleteId];
+      if (oldValue === undefined) return false;
+      const removed = _.remove(
+        this.fname2ids[oldValue.fname.toLowerCase()],
+        (id) => id === oldValue.id
+      );
+      return removed.length > 0;
+    },
+  };
+
   constructor({
     api,
     vaults,
@@ -112,7 +186,12 @@ export class DendronEngineClient implements DEngineClient {
     logger?: DLogger;
   } & DendronEngineClientOpts) {
     this.api = api;
-    this.notes = {};
+    this._notes = {};
+    this.fname2ids = {};
+    this.notesProxy = new Proxy<NotePropsDict>(
+      this._notes,
+      this.notesProxyHandler
+    );
     this.schemas = {};
     this.links = [];
     this.fuseEngine = new FuseEngine({});

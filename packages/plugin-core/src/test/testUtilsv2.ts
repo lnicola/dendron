@@ -389,11 +389,10 @@ export async function setupCodeWorkspaceV3(
 }
 
 export const getNoteFromFname = (opts: { fname: string; vault: DVault }) => {
-  const notes = getDWorkspace().engine.notes;
-  const note = NoteUtils.getNoteByFnameV5({
+  const engine = getDWorkspace().engine;
+  const note = NoteUtils.getNoteByFnameV6({
     ...opts,
-    notes,
-    wsRoot: getDWorkspace().wsRoot,
+    engine,
   });
   return VSCodeUtils.openNote(note!);
 };

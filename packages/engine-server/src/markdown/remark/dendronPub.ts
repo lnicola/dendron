@@ -147,9 +147,8 @@ function plugin(this: Unified.Processor, opts?: PluginOpts): Transformer {
         let error: DendronError | undefined;
         let note: NoteProps | undefined;
         if (mode !== ProcMode.IMPORT) {
-          const notes = NoteUtils.getNotesByFname({
+          const notes = engine.getNotesByFname({
             fname: valueOrig,
-            notes: engine.notes,
             vault,
           });
           const out = getNoteOrError(notes, value);
@@ -162,7 +161,7 @@ function plugin(this: Unified.Processor, opts?: PluginOpts): Transformer {
           const { color: maybeColor, type: colorType } = NoteUtils.color({
             fname: value,
             vault,
-            notes: engine.notes,
+            engine,
           });
           if (
             colorType === "configured" ||
