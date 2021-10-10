@@ -63,6 +63,7 @@ import { DendronNativeWorkspace } from "./workspace/nativeWorkspace";
 import { WorkspaceInitFactory } from "./workspace/workspaceInitializer";
 import os from "os";
 import { SurveyUtils } from "./survey";
+import { RunMigrationCommand } from "./commands/RunMigrationCommand";
 
 const MARKDOWN_WORD_PATTERN = new RegExp("([\\w\\.\\#]+)");
 // === Main
