@@ -321,7 +321,6 @@ export async function _activate(
 
       // initialize client
       setupSegmentClient(wsImpl);
-
       const changes = await wsService.runMigrationsIfNecessary({
         currentVersion,
         previousVersion: previousWorkspaceVersion,
