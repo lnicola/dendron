@@ -433,7 +433,7 @@ suite("Migration", function () {
           expect(postMigrationKeys.includes("commands")).toBeTruthy();
           expect(oldKeys.every((value) => postMigrationKeys.includes(value))).toBeFalsy();
           
-          // done();
+          done();
         }
       })
     })
