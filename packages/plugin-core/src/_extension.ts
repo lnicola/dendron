@@ -49,7 +49,7 @@ import { StateService } from "./services/stateService";
 import { Extensions } from "./settings";
 import { setupSegmentClient } from "./telemetry";
 import { GOOGLE_OAUTH_ID, GOOGLE_OAUTH_SECRET } from "./types/global";
-import { KeybindingUtils, VSCodeUtils, WSUtils } from "./utils";
+import { KeybindingUtils, VSCodeUtils, WSUtils, ConfigUtils } from "./utils";
 import { AnalyticsUtils } from "./utils/analytics";
 import { DendronTreeView } from "./views/DendronTreeView";
 import {
@@ -63,7 +63,6 @@ import { DendronNativeWorkspace } from "./workspace/nativeWorkspace";
 import { WorkspaceInitFactory } from "./workspace/workspaceInitializer";
 import os from "os";
 import { SurveyUtils } from "./survey";
-import { RunMigrationCommand } from "./commands/RunMigrationCommand";
 
 const MARKDOWN_WORD_PATTERN = new RegExp("([\\w\\.\\#]+)");
 // === Main
