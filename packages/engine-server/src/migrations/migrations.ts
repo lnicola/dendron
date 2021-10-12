@@ -136,6 +136,10 @@ export const ALL_MIGRATIONS: Migrations[] = [
                 delete rawDendronConfig.insertNoteIndex;
                 delete dendronConfig.insertNoteIndex;
               }
+            } else {
+              commands.insertNoteIndex = defaultCommandConfig.insertNoteIndex;
+              delete rawDendronConfig.insertNoteIndex;
+              delete dendronConfig.insertNoteIndex;
             }
           }
           if (!commands.insertNoteIndex) {
