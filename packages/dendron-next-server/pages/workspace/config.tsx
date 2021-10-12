@@ -16,7 +16,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import {
-  NoteAddBehavior,
+  LegacyNoteAddBehavior,
   IntermediateDendronConfig,
   LegacyLookupSelectionType,
 } from "@dendronhq/common-all";
@@ -48,13 +48,13 @@ const genDefaultConfig = (): IntermediateDendronConfig => ({
     dailyDomain: "daily",
     name: "journal",
     dateFormat: "y.MM.dd",
-    addBehavior: NoteAddBehavior.childOfDomain,
+    addBehavior: LegacyNoteAddBehavior.childOfDomain,
     firstDayOfWeek: 1,
   },
   scratch: {
     name: "scratch",
     dateFormat: "y.MM.dd.HHmmss",
-    addBehavior: NoteAddBehavior.asOwnDomain,
+    addBehavior: LegacyNoteAddBehavior.asOwnDomain,
   },
   site: {
     copyAssets: true,

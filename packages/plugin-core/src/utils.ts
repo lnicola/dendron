@@ -10,7 +10,7 @@ import {
   InstallStatus,
   IntermediateDendronConfig,
   MigrationEvents,
-  NoteAddBehavior,
+  LegacyNoteAddBehavior,
   NoteProps,
   NoteUtils,
   Point,
@@ -801,7 +801,7 @@ export class DendronClientUtilsV2 {
           })
         : getDWorkspace().config.journal.dateFormat;
 
-    const addBehavior: NoteAddBehavior =
+    const addBehavior: LegacyNoteAddBehavior =
       type === "SCRATCH"
         ? getExtension().getWorkspaceSettingOrDefault({
             wsConfigKey: "dendron.defaultScratchAddBehavior",
