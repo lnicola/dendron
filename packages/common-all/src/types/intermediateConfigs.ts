@@ -10,7 +10,7 @@ import { DendronConfig as DendronConfigV2 } from "./configs/dendronConfig";
 
 export * from "./configs";
 
-export const CURRENT_CONFIG_VERSION = 2;
+export const CURRENT_CONFIG_VERSION = 3;
 /**
  * Partial of the old config, but respect the required keys
  * that are not yet in the process of migration.
@@ -19,8 +19,6 @@ type IntermediateOldConfig = Partial<DendronConfigV1>
   & Required<Pick<DendronConfigV1, 
   | "version"
   | "site"
-  | "journal"
-  | "vaults"
 >>;
 
 /**
@@ -29,12 +27,14 @@ type IntermediateOldConfig = Partial<DendronConfigV1>
  */
 type IntermediateNewConfig = Partial<Pick<DendronConfigV2,
   | "commands"
+  | "workspace"
 >>
 
 export type IntermediateDendronConfig = IntermediateOldConfig & IntermediateNewConfig;
 
 export type StrictV1 = IntermediateDendronConfig & { version: 1 };
 export type StrictV2 = IntermediateDendronConfig & { version: 2 };
+export type StrictV3 = IntermediateDendronConfig & { version: 3 }; 
 
-export type StrictIntermediateDendronConfig = StrictV1 | StrictV2;
+export type StrictIntermediateDendronConfig = StrictV1 | StrictV2 | StrictV3;
 
