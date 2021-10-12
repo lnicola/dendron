@@ -2,17 +2,19 @@ import {
   CleanDendronSiteConfig,
   CONSTANTS,
   IntermediateDendronConfig,
+  genDefaultCommandConfig,
+  genDefaultWorkspaceConfig,
   StrictIntermediateDendronConfig,
   CURRENT_CONFIG_VERSION,
   StrictV1,
   StrictV2,
-  genDefaultCommandConfig,
+  StrictV3,
   DendronError,
   DendronSiteConfig,
   ERROR_STATUS,
   getStage,
   LegacyLookupSelectionType,
-  NoteAddBehavior,
+  LegacyNoteAddBehavior,
   Time,
 } from "@dendronhq/common-all";
 import { readYAML, writeYAML } from "@dendronhq/common-server";
@@ -51,33 +53,16 @@ export class DConfig {
     return _.defaults(config, { initializeRemoteVaults: true });
   }
 
-  static genDefaultConfig(current?: boolean): StrictIntermediateDendronConfig {
+  static genDefaultConfig(version?: number): StrictIntermediateDendronConfig {
     const common = {
-      maxPreviewsCached: 10,
-      vaults: [],
       useFMTitle: true,
       useNoteTitleForLink: true,
-      noAutoCreateOnDefinition: true,
       noLegacyNoteRef: true,
-      noXVaultWikiLink: true,
       mermaid: true,
       useKatex: true,
-      autoFoldFrontmatter: true,
       usePrettyRefs: true,
       dev: {
         enablePreviewV2: true,
-      },
-      journal: {
-        dailyDomain: "daily",
-        name: "journal",
-        dateFormat: "y.MM.dd",
-        addBehavior: NoteAddBehavior.childOfDomain,
-        firstDayOfWeek: 1,
-      },
-      scratch: {
-        name: "scratch",
-        dateFormat: "y.MM.dd.HHmmss",
-        addBehavior: NoteAddBehavior.asOwnDomain,
       },
       site: {
         copyAssets: true,
@@ -90,25 +75,61 @@ export class DConfig {
         gh_edit_branch: "main",
       },
     };
-
-    if (current) {
-      return { 
-        ...common,
-        version: 2,
-        commands: genDefaultCommandConfig(),
-      } as StrictV2;
-    } else {
-      return {
-        ...common,
-        version: 1,
-        lookupConfirmVaultOnCreate: false,
-        lookup: {
-          note: {
-            selectionType: LegacyLookupSelectionType.selectionExtract,
-            leaveTrace: false,
-          },
+    const omittedFromV2 = {
+      lookupConfirmVaultOnCreate: false,
+      lookup: {
+        note: {
+          selectionType: LegacyLookupSelectionType.selectionExtract,
+          leaveTrace: false,
         },
-      } as StrictV1;
+      }, 
+    }
+    const omittedFromV3 = {
+      vaults: [],
+      journal: {
+        dailyDomain: "daily",
+        name: "journal",
+        dateFormat: "y.MM.dd",
+        addBehavior: LegacyNoteAddBehavior.childOfDomain,
+        firstDayOfWeek: 1,
+      },
+      scratch: {
+        name: "scratch",
+        dateFormat: "y.MM.dd.HHmmss",
+        addBehavior: LegacyNoteAddBehavior.asOwnDomain,
+      },
+      noAutoCreateOnDefinition: true,
+      noXVaultWikiLink: true,
+      autoFoldFrontmatter: true,
+      maxPreviewsCached: 10
+    }
+    if (_.isUndefined(version)) version = 1; 
+    switch(version) {
+      case 3: {
+        return {
+          version: 3,
+          ...common,
+          commands: genDefaultCommandConfig(),
+          workspace: genDefaultWorkspaceConfig(),
+        } as StrictV3;
+      }
+      case 2: {
+        return { 
+          version: 2,
+          ...common,
+          ...omittedFromV3,
+          commands: genDefaultCommandConfig(),
+        } as StrictV2;
+      }
+      case 1:
+      default: {
+        return {
+          version: 1,
+          ...common,
+          ...omittedFromV3,
+          ...omittedFromV2,
+        } as StrictV1;
+      }
     }
   }
 
@@ -253,14 +274,14 @@ export class DConfig {
   }
 
   
-  static isCurrentConfig(config: StrictIntermediateDendronConfig): config is StrictV2 {
-    return (config as StrictV2).version === CURRENT_CONFIG_VERSION;
+  static isCurrentConfig(config: StrictIntermediateDendronConfig): config is StrictV3 {
+    return (config as StrictV3).version === CURRENT_CONFIG_VERSION;
   }
 
   static getConfig(config: IntermediateDendronConfig, path: string) {
     const value = _.get(config, path);
     if (value) {
-      // is v2
+      // is v3
       return value;
     }
     if (
@@ -269,13 +290,29 @@ export class DConfig {
         config as StrictIntermediateDendronConfig
       )
     ) {
-      // config is v1. fall back to legacy config
-      return DConfig.getLegacyConfig(config, path);
+      // config is v1 or v2. fall back to legacy config
+      // if v2
+      switch(config.version) {
+        case 2: {
+          // TODO: implement
+          if (this.isRequired(path)) {
+            // config is v2, but it isn't there. Grab v2's default value.
+            return _.get(DConfig.genDefaultConfig(2), path);
+          } else {
+            // config is v2, but it's not required. return.
+            return;
+          }
+        }
+        case 1:
+        default: {
+          return DConfig.getLegacyConfig(config, path);
+        }
+      }
     }
 
     if (_.isUndefined(value) && this.isRequired(path)) {
-      // config is v2, but it isn't there. Grab v2's default value.
-      return _.get(DConfig.genDefaultConfig(true), path);
+      // config is v3, but it isn't there. Grab v3's default value.
+      return _.get(DConfig.genDefaultConfig(3), path);
     }
     return;
   }
