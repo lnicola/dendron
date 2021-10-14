@@ -172,7 +172,10 @@ export class WorkspaceService {
    * @returns `{vaults}` that have been added
    */
   async addWorkspace({ workspace }: { workspace: DWorkspace }) {
-    const allWorkspaces = this.config.workspaces || {};
+    const allWorkspaces =
+      this.config.version === 3
+        ? this.config.workspace?.workspaces || {}
+        : this.config.workspaces || {};
     allWorkspaces[workspace.name] = _.omit(workspace, ["name", "vaults"]);
     const config = this.config;
     // update vault
@@ -191,7 +194,11 @@ export class WorkspaceService {
       },
       Promise.resolve([] as DVault[])
     );
-    config.workspaces = allWorkspaces;
+    if (this.config.version === 3) {
+      config.workspace!.workspaces = allWorkspaces;
+    } else {
+      config.workspaces = allWorkspaces;
+    }
     this.setConfig(config);
     return { vaults: newVaults };
   }

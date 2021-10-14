@@ -295,7 +295,6 @@ export class DConfig {
       // if v2
       switch (config.version) {
         case 2: {
-          // TODO: implement
           if (this.isRequired(path)) {
             // config is v2, but it isn't there. Grab v2's default value.
             return _.get(DConfig.genDefaultConfig(2), path);
