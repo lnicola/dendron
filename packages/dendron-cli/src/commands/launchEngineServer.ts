@@ -1,8 +1,10 @@
 import { launchv2 } from "@dendronhq/api-server";
 import { LogLvl, resolvePath } from "@dendronhq/common-server";
+import { DVault } from "@dendronhq/common-all";
 import {
   DendronEngineClient,
   WorkspaceService,
+  DConfig,
 } from "@dendronhq/engine-server";
 import _ from "lodash";
 import { Socket } from "net";
@@ -64,8 +66,14 @@ export class LaunchEngineServerCommand extends CLICommand<
     });
     wsRoot = resolvePath(wsRoot, process.cwd());
     const ws = new WorkspaceService({ wsRoot });
-    const { vaults, dev } = ws.config;
-    const vaultPaths = vaults.map((v) => resolvePath(v.fsPath, wsRoot));
+    const { dev } = ws.config;
+    const vaultsConfig = DConfig.getConfig(
+      ws.config,
+      "workspace.vaults"
+    ) as DVault[];
+    const vaultPaths = vaultsConfig.map((v: DVault) =>
+      resolvePath(v.fsPath, wsRoot)
+    );
     const {
       port: _port,
       server,
@@ -84,7 +92,7 @@ export class LaunchEngineServerCommand extends CLICommand<
     }
     const engine = DendronEngineClient.create({
       port: _port,
-      vaults,
+      vaults: vaultsConfig,
       ws: wsRoot,
     });
     if (init) {

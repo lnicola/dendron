@@ -10,6 +10,7 @@ import {
   getStage,
   InstallStatus,
   Time,
+  DVault,
   VaultUtils,
   VSCodeEvents,
   WorkspaceType,
@@ -380,10 +381,12 @@ export async function _activate(
       // }
 
       // check for vaults with same name
-      const uniqVaults = _.uniqBy(dendronConfig.vaults, (vault) =>
-        VaultUtils.getName(vault)
-      );
-      if (_.size(uniqVaults) < _.size(dendronConfig.vaults)) {
+      const vaults = DConfig.getConfig(
+        dendronConfig,
+        "workspace.vaults"
+      ) as DVault[];
+      const uniqVaults = _.uniqBy(vaults, (vault) => VaultUtils.getName(vault));
+      if (_.size(uniqVaults) < _.size(vaults)) {
         const txt = "Fix it";
         await vscode.window
           .showErrorMessage(

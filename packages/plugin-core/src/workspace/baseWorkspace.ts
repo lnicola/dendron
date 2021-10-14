@@ -37,7 +37,9 @@ export abstract class DendronBaseWorkspace implements DWorkspaceV2 {
 
   // TODO: optimize to not read every time
   get vaults(): DVault[] {
-    return this.config.vaults;
+    const config = this.config;
+    const vaultsConfig = DConfig.getConfig(config, "workspace.vaults");
+    return vaultsConfig;
   }
 
   get engine(): DEngineClient {

@@ -16,7 +16,7 @@ export function migrateConfig({
   config,
   wsRoot,
 }: {
-  config: IntermediateDendronConfig
+  config: IntermediateDendronConfig;
 } & Omit<WorkspaceOpts, "vaults">) {
   const ctx = "migrateConfig";
   let changed = false;
@@ -40,7 +40,7 @@ export function migrateConfig({
   }
 
   // check if vaults are absolute path, if so, change
-  config.vaults.forEach((ent) => {
+  config.vaults!.forEach((ent) => {
     if (path.isAbsolute(ent.fsPath)) {
       ent.fsPath = path.relative(wsRoot, ent.fsPath);
       changed = true;
