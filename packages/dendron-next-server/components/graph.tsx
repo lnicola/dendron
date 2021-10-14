@@ -200,7 +200,10 @@ export default function Graph({
           edges: parsedEdges,
         },
         style,
-        wheelSensitivity: engine.config?.graph?.zoomSpeed || 1,
+        wheelSensitivity:
+          engine.config?.version === 3
+            ? engine.config?.workspace!.graph.zoomSpeed || 1
+            : engine.config?.graph?.zoomSpeed || 1,
 
         // Zoom levels
         minZoom: 0.1,
