@@ -1,6 +1,7 @@
 import { NoteUtils, VaultUtils } from "@dendronhq/common-all";
 import { cleanName } from "@dendronhq/common-server";
 import _ from "lodash";
+import { DConfig } from "@dendronhq/engine-server";
 import * as vscode from "vscode";
 import { PickerUtilsV2 } from "../components/lookup/utils";
 import { DENDRON_COMMANDS } from "../constants";
@@ -24,7 +25,9 @@ export class CreateDailyJournalCommand extends BaseCommand<
 > {
   key = DENDRON_COMMANDS.CREATE_DAILY_JOURNAL_NOTE.key;
   async gatherInputs(): Promise<CommandInput | undefined> {
-    const dailyJournalDomain = getDWorkspace().config.journal.dailyDomain;
+    const config = getDWorkspace().config;
+    const journalConfig = DConfig.getConfig(config, "workspace.journal");
+    const dailyJournalDomain = journalConfig.dailyDomain;
     const { noteName: fname } = DendronClientUtilsV2.genNoteName("JOURNAL", {
       overrides: { domain: dailyJournalDomain },
     });
@@ -42,18 +45,28 @@ export class CreateDailyJournalCommand extends BaseCommand<
   async execute(opts: CommandOpts) {
     const { fname } = opts;
     const ctx = "CreateDailyJournal";
-    const journalName = getDWorkspace().config.journal.name;
+    const config = getDWorkspace().config;
+    const journalConfig = DConfig.getConfig(config, "workspace.journal");
+    const journalName = journalConfig.name;
     this.L.info({ ctx, journalName, fname });
     const title = NoteUtils.genJournalNoteTitle({
       fname,
       journalName,
     });
-    const { config, engine } = getDWorkspace();
+    const lookupConfig = DConfig.getConfig(config, "commands.lookup");
+    const noteLookupConfig = lookupConfig.note;
+    let confirmVaultOnCreate;
+    if ("confirmVaultOnCreate" in noteLookupConfig) {
+      confirmVaultOnCreate = noteLookupConfig.confirmVaultOnCreate;
+    } else {
+      confirmVaultOnCreate = DConfig.getProp(
+        config,
+        "lookupConfirmVaultOnCreate"
+      );
+    }
+    const { engine } = getDWorkspace();
     let vault;
-    if (
-      _.isUndefined(config.journal.dailyVault) &&
-      config.lookupConfirmVaultOnCreate
-    ) {
+    if (_.isUndefined(journalConfig.dailyVault) && confirmVaultOnCreate) {
       vault = await PickerUtilsV2.promptVault(engine.vaults);
       if (vault === undefined) {
         vscode.window.showInformationMessage(
@@ -62,10 +75,11 @@ export class CreateDailyJournalCommand extends BaseCommand<
         return;
       }
     } else {
-      vault = config.journal.dailyVault
+      const dailyVaultConfig = journalConfig.dailyVault;
+      vault = dailyVaultConfig
         ? VaultUtils.getVaultByName({
             vaults: engine.vaults,
-            vname: config.journal.dailyVault,
+            vname: dailyVaultConfig,
           })
         : undefined;
     }

@@ -41,6 +41,8 @@ const requiredPathsMap = new Map<string, string>([
   ["commands.insertNoteIndex", "insertNoteIndex"],
   ["commands.randomNote", "randomNote"],
   ["commands.lookup", "lookup"],
+  ["workspace.journal", "journal"],
+  ["workspace.vaults", "vaults"],
 ]);
 export class DConfig {
   static configPath(configRoot: string): string {
@@ -82,8 +84,8 @@ export class DConfig {
           selectionType: LegacyLookupSelectionType.selectionExtract,
           leaveTrace: false,
         },
-      }, 
-    }
+      },
+    };
     const omittedFromV3 = {
       vaults: [],
       journal: {
@@ -101,10 +103,10 @@ export class DConfig {
       noAutoCreateOnDefinition: true,
       noXVaultWikiLink: true,
       autoFoldFrontmatter: true,
-      maxPreviewsCached: 10
-    }
-    if (_.isUndefined(version)) version = 1; 
-    switch(version) {
+      maxPreviewsCached: 10,
+    };
+    if (_.isUndefined(version)) version = 1;
+    switch (version) {
       case 3: {
         return {
           version: 3,
@@ -114,7 +116,7 @@ export class DConfig {
         } as StrictV3;
       }
       case 2: {
-        return { 
+        return {
           version: 2,
           ...common,
           ...omittedFromV3,
@@ -139,9 +141,7 @@ export class DConfig {
    */
   static getRaw(wsRoot: string) {
     const configPath = DConfig.configPath(wsRoot);
-    const config = readYAML(configPath) as Partial<
-      IntermediateDendronConfig
-    >;
+    const config = readYAML(configPath) as Partial<IntermediateDendronConfig>;
     return config;
   }
 
@@ -150,9 +150,9 @@ export class DConfig {
     defaults?: Partial<IntermediateDendronConfig>
   ): IntermediateDendronConfig {
     const configPath = DConfig.configPath(dendronRoot);
-    let config: IntermediateDendronConfig = { 
-      ...defaults, 
-      ...DConfig.genDefaultConfig() 
+    let config: IntermediateDendronConfig = {
+      ...defaults,
+      ...DConfig.genDefaultConfig(),
     };
     if (!fs.existsSync(configPath)) {
       writeYAML(configPath, config);
@@ -256,7 +256,7 @@ export class DConfig {
     const configPath = DConfig.configPath(wsRoot);
     const today = Time.now().toFormat("yyyy.MM.dd.HHmmssS");
     const prefix = `dendron.${today}.`;
-    const suffix = `yml`
+    const suffix = `yml`;
     const maybeInfix = infix ? `${infix}.` : "";
     const backupName = `${prefix}${maybeInfix}${suffix}`;
     const backupPath = path.join(wsRoot, backupName);
@@ -265,7 +265,9 @@ export class DConfig {
   }
 
   static getLegacyConfig(config: IntermediateDendronConfig, path: string) {
-    const mappedLegacyConfigKey = requiredPathsMap.get(path) as keyof IntermediateDendronConfig;
+    const mappedLegacyConfigKey = requiredPathsMap.get(
+      path
+    ) as keyof IntermediateDendronConfig;
     return DConfig.getProp(config, mappedLegacyConfigKey);
   }
 
@@ -273,8 +275,9 @@ export class DConfig {
     return requiredPathsMap.has(path);
   }
 
-  
-  static isCurrentConfig(config: StrictIntermediateDendronConfig): config is StrictV3 {
+  static isCurrentConfig(
+    config: StrictIntermediateDendronConfig
+  ): config is StrictV3 {
     return (config as StrictV3).version === CURRENT_CONFIG_VERSION;
   }
 
@@ -285,14 +288,12 @@ export class DConfig {
       return value;
     }
     if (
-      _.isUndefined(value) && 
-      !DConfig.isCurrentConfig(
-        config as StrictIntermediateDendronConfig
-      )
+      _.isUndefined(value) &&
+      !DConfig.isCurrentConfig(config as StrictIntermediateDendronConfig)
     ) {
       // config is v1 or v2. fall back to legacy config
       // if v2
-      switch(config.version) {
+      switch (config.version) {
         case 2: {
           // TODO: implement
           if (this.isRequired(path)) {
