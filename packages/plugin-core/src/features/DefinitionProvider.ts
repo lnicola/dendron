@@ -58,9 +58,14 @@ export default class DefinitionProvider implements vscode.DefinitionProvider {
         }
         return loc;
       } else {
-        if (getDWorkspace().config.noAutoCreateOnDefinition) {
+        const config = getDWorkspace().config;
+        if (
+          (config.version === 3 &&
+            !config.workspace!.enableAutoCreateOnDefinition) ||
+          config.noAutoCreateOnDefinition
+        )
           return;
-        }
+
         const out = await new GotoNoteCommand().execute({
           qs: refAtPos.ref,
           anchor: refAtPos.anchorStart,
