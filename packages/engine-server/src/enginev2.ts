@@ -577,12 +577,13 @@ export class DendronEngineV2 implements DEngine {
         if (ent.status === "delete") {
           delete this.notes[id];
         } else {
-          if (ent.status === "create") {
-          }
+          const maxNoteLength =
+            this.config.version === 3
+              ? this.config.workspace!.maxNoteLength
+              : this.config.maxNoteLength;
           if (
             ent.note.body.length <
-            (this.config.maxNoteLength ||
-              CONSTANTS.DENDRON_DEFAULT_MAX_NOTE_LENGTH)
+            (maxNoteLength || CONSTANTS.DENDRON_DEFAULT_MAX_NOTE_LENGTH)
           ) {
             const links = LinkUtils.findLinks({ note: ent.note, engine: this });
             const linkCandidates = LinkUtils.findLinkCandidates({
