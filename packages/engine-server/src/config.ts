@@ -52,7 +52,11 @@ export class DConfig {
   static defaults(
     config: IntermediateDendronConfig
   ): IntermediateDendronConfig {
-    return _.defaults(config, { initializeRemoteVaults: true });
+    const extra =
+      config.version === 3
+        ? { enableRemoteVaultInit: true }
+        : { initializeRemoteVaults: true };
+    return _.defaults(config, extra);
   }
 
   static genDefaultConfig(version?: number): StrictIntermediateDendronConfig {

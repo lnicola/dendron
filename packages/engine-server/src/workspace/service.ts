@@ -407,7 +407,11 @@ export class WorkspaceService {
       onSyncVaultsProgress: () => {},
       onSyncVaultsEnd: () => {},
     });
-    if (this.config.initializeRemoteVaults) {
+    const initializeRemoteVaults =
+      this.config.version === 3
+        ? this.config.workspace!.enableRemoteVaultInit
+        : this.config.initializeRemoteVaults;
+    if (initializeRemoteVaults) {
       const { didClone } = await this.syncVaults({
         config: this.config,
         progressIndicator: onSyncVaultsProgress,
