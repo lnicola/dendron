@@ -29,13 +29,21 @@ export class HookUtils {
     hookType: DHookType;
     hookEntry: DHookEntry;
   }) {
+    const hooksConfig =
+      config.version === 3 ? config.workspace!.hooks : config.hooks;
     let onCreate: DHookEntry[] = _.get(
-      config.hooks,
+      hooksConfig,
       hookType,
       [] as DHookEntry[]
     ).concat([hookEntry]);
-    config.hooks = config.hooks || { onCreate: [] };
-    config.hooks.onCreate = onCreate;
+
+    if (config.version === 3) {
+      config.workspace!.hooks = config.workspace!.hooks || { onCreate: [] };
+      config.workspace!.hooks.onCreate = onCreate;
+    } else {
+      config.hooks = config.hooks || { onCreate: [] };
+      config.hooks.onCreate = onCreate;
+    }
     return config;
   }
 
@@ -62,16 +70,26 @@ export class HookUtils {
     hookType: DHookType;
     hookId: string;
   }) {
+    const hooksConfig =
+      config.version === 3 ? config.workspace!.hooks : config.hooks;
     let onCreate: DHookEntry[] = _.get(
-      config.hooks,
+      hooksConfig,
       hookType,
       [] as DHookEntry[]
     );
-    config.hooks = config.hooks || { onCreate: [] };
+    if (config.version === 3) {
+      config.workspace!.hooks = config.workspace!.hooks || { onCreate: [] };
+    } else {
+      config.hooks = config.hooks || { onCreate: [] };
+    }
     onCreate = _.remove(onCreate, { id: hookId });
     const idx = _.findIndex(onCreate, { id: hookId });
     onCreate.splice(idx, 1);
-    config.hooks.onCreate = onCreate;
+    if (config.version === 3) {
+      config.workspace!.hooks!.onCreate = onCreate;
+    } else {
+      config.hooks!.onCreate = onCreate;
+    }
     return config;
   }
 
