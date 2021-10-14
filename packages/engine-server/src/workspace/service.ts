@@ -912,8 +912,9 @@ export class WorkspaceService {
     // check seeds
     const seedResults: { id: string; status: SyncActionStatus; data: any }[] =
       [];
+    const seeds = config.version === 3 ? config.workspace!.seeds : config.seeds;
     await Promise.all(
-      _.map(config.seeds, async (entry: SeedEntry, id: string) => {
+      _.map(seeds, async (entry: SeedEntry, id: string) => {
         if (!(await SeedUtils.exists({ id, wsRoot }))) {
           const resp = await this._seedService.info({ id });
           if (_.isUndefined(resp)) {

@@ -140,10 +140,11 @@ export class WorkspaceUtils {
      * set to true if index node, don't append id at the end
      */
     let isIndex: boolean = false;
-
+    const seedsConfig =
+      config.version === 3 ? config.workspace!.seeds : config.seeds;
     if (vault.seed) {
-      if (config.seeds && config.seeds[vault.seed]) {
-        const maybeSite = config.seeds[vault.seed]?.site;
+      if (seedsConfig && seedsConfig[vault.seed]) {
+        const maybeSite = seedsConfig[vault.seed]?.site;
         if (maybeSite) {
           urlRoot = maybeSite.url;
           if (!_.isUndefined(note)) {

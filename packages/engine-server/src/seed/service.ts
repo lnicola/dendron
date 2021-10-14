@@ -120,14 +120,23 @@ export class SeedService {
     const ws = new WorkspaceService({ wsRoot });
     const config = ws.config;
     const id = SeedUtils.getSeedId({ ...seed });
-    if (!config.seeds) {
+    if (config.version === 3) {
+      if (!config.workspace!.seeds) {
+        config.workspace!.seeds = {};
+      }
+    } else if (!config.seeds) {
       config.seeds = {};
     }
+
     const seedEntry: SeedEntry = {};
     if (seed.site) {
       seedEntry.site = seed.site;
     }
-    config.seeds[id] = seedEntry;
+    if (config.version === 3) {
+      config.workspace!.seeds![id] = seedEntry;
+    } else {
+      config.seeds![id] = seedEntry;
+    }
 
     const updateWorkspace =
       WorkspaceUtils.getWorkspaceTypeFromDir(wsRoot) === WorkspaceType.CODE;
@@ -226,7 +235,15 @@ export class SeedService {
   }): Promise<SeedSvcResp> {
     const ws = new WorkspaceService({ wsRoot: this.wsRoot });
     const config = ws.config;
-    if (!_.has(config.seeds, id)) {
+    const seedExistsWithId = (id: string) => {
+      if (config.version === 3) {
+        return _.has(config.workspace?.seeds, id);
+      } else {
+        return _.has(config.seeds, id);
+      }
+    };
+
+    if (!seedExistsWithId(id)) {
       return {
         error: new DendronError({
           status: ERROR_STATUS.DOES_NOT_EXIST,
@@ -269,7 +286,11 @@ export class SeedService {
 
     // remove seed entry
     const config = ws.config;
-    delete (config.seeds || {})[SeedUtils.getSeedId(seed)];
+    if (config.version === 3) {
+      delete (config.workspace!.seeds || {})[SeedUtils.getSeedId(seed)];
+    } else {
+      delete (config.seeds || {})[SeedUtils.getSeedId(seed)];
+    }
     ws.setConfig(config);
 
     const updateWorkspace =
