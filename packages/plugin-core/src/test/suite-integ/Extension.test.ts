@@ -743,14 +743,13 @@ suite(
 suite.skip("Legacy checking logic for configurations during init", function () {
   let homeDirStub: SinonStub;
   let checkLegacySpy: SinonSpy;
-  
+
   const ctx: ExtensionContext = setupBeforeAfter(this, {
     beforeHook: async (ctx) => {
       new StateService(ctx);
       await resetCodeWorkspace();
       await new ResetConfigCommand().execute({ scope: "all" });
       homeDirStub = TestEngineUtils.mockHomeDir();
-      
     },
     afterHook: async () => {
       homeDirStub.restore();
@@ -764,17 +763,17 @@ suite.skip("Legacy checking logic for configurations during init", function () {
       ctx,
       preSetupHook: async ({ wsRoot, vaults }) => {
         DendronExtension.version = () => "0.0.1";
-        ENGINE_HOOKS.setupBasic({ wsRoot, vaults })
+        ENGINE_HOOKS.setupBasic({ wsRoot, vaults });
         checkLegacySpy = sinon.spy(ConfigUtils, "checkAndMigrateLegacy");
-      }
+      },
     },
     () => {
       test("THEN: checkAndMigrateLegacy does not run", (done) => {
         expect(checkLegacySpy.calledOnce).toBeFalsy();
         done();
-      })
+      });
     }
-  )
+  );
 
   describeMultiWS(
     "GIVEN: current version is 0.63.0",
@@ -782,16 +781,15 @@ suite.skip("Legacy checking logic for configurations during init", function () {
       ctx,
       preSetupHook: async ({ wsRoot, vaults }) => {
         DendronExtension.version = () => "0.63.0";
-        ENGINE_HOOKS.setupBasic({ wsRoot, vaults })
+        ENGINE_HOOKS.setupBasic({ wsRoot, vaults });
         checkLegacySpy = sinon.spy(ConfigUtils, "checkAndMigrateLegacy");
-      }
+      },
     },
     () => {
       test("THEN: checkAndMigrateLegacy is called", (done) => {
         expect(checkLegacySpy.calledOnce).toBeTruthy();
         done();
-      })
+      });
     }
-  )
-  
-})
+  );
+});

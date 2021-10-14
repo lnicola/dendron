@@ -131,7 +131,8 @@ suite("VaultRemoveCommand", function () {
             getDWorkspace().wsRoot as string
           );
           const config = readYAML(configPath) as IntermediateDendronConfig;
-          expect(config.vaults.map((ent) => ent.fsPath)).toEqual([
+          const vaultsConfig = DConfig.getConfig(config, "workspace.vaults");
+          expect(vaultsConfig.map((ent: DVault) => ent.fsPath)).toEqual([
             vaults[0].fsPath,
           ]);
 
@@ -200,9 +201,15 @@ suite("VaultRemoveCommand", function () {
           const configPathOrig = DConfig.configPath(
             getDWorkspace().wsRoot as string
           );
-          const configOrig = readYAML(configPathOrig) as IntermediateDendronConfig;
+          const configOrig = readYAML(
+            configPathOrig
+          ) as IntermediateDendronConfig;
+          const vaultsConfigOrig = DConfig.getConfig(
+            configOrig,
+            "workspace.vaults"
+          );
           // check what we are starting from.
-          expect(configOrig.vaults.map((ent) => ent.fsPath)).toEqual([
+          expect(vaultsConfigOrig.map((ent: DVault) => ent.fsPath)).toEqual([
             vaults[0].fsPath,
             vaults[1].fsPath,
             vaults[2].fsPath,

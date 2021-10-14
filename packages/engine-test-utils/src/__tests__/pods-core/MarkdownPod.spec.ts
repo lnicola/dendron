@@ -5,6 +5,7 @@ import {
   NoteTestUtilsV4,
   NOTE_PRESETS_V4,
 } from "@dendronhq/common-test-utils";
+import { DConfig } from "@dendronhq/engine-server";
 import {
   MarkdownExportPod,
   MarkdownImportPod,
@@ -204,7 +205,11 @@ describe("markdown publish pod", () => {
         });
         const seedId = TestSeedUtils.defaultSeedId();
         engine.config = TestConfigUtils.getConfig({ wsRoot });
-        engine.vaults = engine.config.vaults;
+        const vaultsConfig = DConfig.getConfig(
+          engine.config,
+          "workspace.vaults"
+        );
+        engine.vaults = vaultsConfig;
         const vault = VaultUtils.getVaultByName({
           vaults: engine.vaults,
           vname: seedId,

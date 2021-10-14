@@ -2,6 +2,7 @@ import { VaultUtils } from "@dendronhq/common-all";
 import { NoteTestUtilsV4, NOTE_PRESETS_V4 } from "@dendronhq/common-test-utils";
 import { ENGINE_HOOKS, TestSeedUtils } from "@dendronhq/engine-test-utils";
 import _ from "lodash";
+import { DConfig } from "@dendronhq/engine-server";
 import sinon from "sinon";
 import * as vscode from "vscode";
 import { CopyNoteURLCommand } from "../../commands/CopyNoteURL";
@@ -87,8 +88,10 @@ suite("CopyNoteUrl", function () {
           },
         });
         const seedId = TestSeedUtils.defaultSeedId();
-        engine.config = getDWorkspace().config;
-        engine.vaults = engine.config.vaults;
+        const config = getDWorkspace().config;
+        engine.config = config;
+        const vaultsConfig = DConfig.getConfig(config, "workspace.vaults");
+        engine.vaults = vaultsConfig;
         sinon.stub(VSCodeUtils, "getNoteFromDocument").returns(
           await NoteTestUtilsV4.createNote({
             fname: "root",
@@ -98,7 +101,7 @@ suite("CopyNoteUrl", function () {
         );
 
         const vault = VaultUtils.getVaultByName({
-          vaults: getDWorkspace().config.vaults,
+          vaults: vaultsConfig,
           vname: seedId,
         })!;
         await VSCodeUtils.openNoteByPath({ vault, fname: "root" });
@@ -130,8 +133,10 @@ suite("CopyNoteUrl", function () {
           },
         });
         const seedId = TestSeedUtils.defaultSeedId();
-        engine.config = getDWorkspace().config;
-        engine.vaults = engine.config.vaults;
+        const config = getDWorkspace().config;
+        engine.config = config;
+        const vaultsConfig = DConfig.getConfig(config, "workspace.vaults");
+        engine.vaults = vaultsConfig;
         // TODO: ugly temporary hack. can be removed when [[Unify Runenginetest and Runworkspacetest|scratch.2021.06.17.164102.unify-runenginetest-and-runworkspacetest]] is implemented
         sinon.stub(VSCodeUtils, "getNoteFromDocument").returns(
           await NoteTestUtilsV4.createNote({
@@ -141,7 +146,7 @@ suite("CopyNoteUrl", function () {
           })
         );
         const vault = VaultUtils.getVaultByName({
-          vaults: getDWorkspace().config.vaults,
+          vaults: vaultsConfig,
           vname: seedId,
         })!;
         await VSCodeUtils.openNoteByPath({ vault, fname: "root" });

@@ -7,7 +7,7 @@ import {
   withConfig,
   EditorUtils,
 } from "../testUtilsV3";
-import { DVault, VaultUtils } from "@dendronhq/common-all";
+import { DVault, VaultUtils, StrictV1 } from "@dendronhq/common-all";
 import { NoteTestUtilsV4 } from "@dendronhq/common-test-utils";
 import _ from "lodash";
 import { PickerUtilsV2 } from "../../components/lookup/utils";
@@ -15,6 +15,7 @@ import { getActiveEditorBasename } from "../testUtils";
 import { CONFIG } from "../../constants";
 import { VSCodeUtils } from "../../utils";
 import sinon from "sinon";
+import { DConfig } from "@dendronhq/engine-server";
 
 const stubVaultPick = (vaults: DVault[]) => {
   const vault = _.find(vaults, { fsPath: vaults[2].fsPath });
@@ -47,6 +48,7 @@ suite("Create Daily Journal Suite", function () {
         withConfig(
           (config) => {
             config.lookupConfirmVaultOnCreate = false;
+            config.journal = (DConfig.genDefaultConfig(1) as StrictV1).journal;
             config.journal.dailyVault = VaultUtils.getName(vaults[0]);
             return config;
           },
@@ -70,6 +72,7 @@ suite("Create Daily Journal Suite", function () {
         withConfig(
           (config) => {
             config.lookupConfirmVaultOnCreate = true;
+            config.journal = (DConfig.genDefaultConfig(1) as StrictV1).journal;
             config.journal.dailyVault = VaultUtils.getName(vaults[0]);
             return config;
           },
@@ -113,6 +116,7 @@ suite("Create Daily Journal Suite", function () {
     runLegacyMultiWorkspaceTest({
       ctx,
       modConfigCb: (config) => {
+        config.journal = (DConfig.genDefaultConfig(1) as StrictV1).journal;
         config.journal.dailyDomain = "bar";
         return config;
       },
@@ -138,6 +142,7 @@ suite("Create Daily Journal Suite", function () {
         },
       },
       modConfigCb: (config) => {
+        config.journal = (DConfig.genDefaultConfig(1) as StrictV1).journal;
         config.journal.dateFormat = "dd";
         config.journal.dailyDomain = "daisy";
         config.journal.name = "journey";

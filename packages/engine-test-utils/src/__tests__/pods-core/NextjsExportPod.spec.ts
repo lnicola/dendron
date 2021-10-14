@@ -106,9 +106,12 @@ describe("GIVEN NextExport pod", () => {
               );
               TestConfigUtils.withConfig(
                 (config) => {
-                  const vault2 = config.vaults.find(
-                    (ent) => ent.fsPath === "vault2"
-                  );
+                  const vault2 =
+                    config.version === 3
+                      ? config.workspace!.vaults.find(
+                          (ent) => ent.fsPath === "vault2"
+                        )
+                      : config.vaults!.find((ent) => ent.fsPath === "vault2");
                   vault2!.visibility = DVaultVisibility.PRIVATE;
                   config.site.siteUrl = "https://foo.com";
                   return config;

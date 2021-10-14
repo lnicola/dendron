@@ -717,9 +717,12 @@ describe("SiteUtils", () => {
             await ENGINE_HOOKS_MULTI.setupBasicMulti(opts);
             TestConfigUtils.withConfig(
               (config) => {
-                const bvault = config.vaults.find(
-                  (ent) => ent.fsPath === "vault2"
-                );
+                const bvault =
+                  config.version === 3
+                    ? config.workspace?.vaults.find(
+                        (ent) => ent.fsPath === "vault2"
+                      )
+                    : config.vaults!.find((ent) => ent.fsPath === "vault2");
                 bvault!.visibility = DVaultVisibility.PRIVATE;
                 const sconfig: DendronSiteConfig = {
                   siteHierarchies: ["root"],
