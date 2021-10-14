@@ -869,10 +869,14 @@ export class DendronClientUtilsV2 {
   };
 
   static shouldUseVaultPrefix(engine: DEngineClient) {
-    const noXVaultLink = getDWorkspace().config.noXVaultWikiLink;
+    const config = getDWorkspace().config;
+    const useXVaultWikilink =
+      config.version === 3
+        ? config.workspace!.enableXVaultWikiLink
+        : !config.noXVaultWikiLink;
     const useVaultPrefix =
       _.size(engine.vaults) > 1 &&
-      (_.isBoolean(noXVaultLink) ? !noXVaultLink : true);
+      (_.isBoolean(useXVaultWikilink) ? useXVaultWikilink : false);
     return useVaultPrefix;
   }
 }
