@@ -164,7 +164,12 @@ export class WindowWatcher {
       fname: NoteUtils.uri2Fname(editor.document.uri),
     });
     this.moveCursorPastFrontmatter(editor);
-    if (getDWorkspace().config.autoFoldFrontmatter) {
+    const config = getDWorkspace().config;
+    const autoFoldFrontmatter =
+      config.version === 3
+        ? config.workspace!.enableAutoFoldFrontmatter
+        : config.autoFoldFrontmatter;
+    if (autoFoldFrontmatter) {
       await this.foldFrontmatter();
     }
     Logger.info({
