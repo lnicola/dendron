@@ -6,6 +6,7 @@ import {
   genDefaultWorkspaceConfig,
   StrictIntermediateDendronConfig,
   CURRENT_CONFIG_VERSION,
+  ERROR_SEVERITY,
   StrictV1,
   StrictV2,
   StrictV3,
@@ -296,7 +297,6 @@ export class DConfig {
       !DConfig.isCurrentConfig(config as StrictIntermediateDendronConfig)
     ) {
       // config is v1 or v2. fall back to legacy config
-      // if v2
       switch (config.version) {
         case 2: {
           if (this.isRequired(path)) {
@@ -320,4 +320,170 @@ export class DConfig {
     }
     return;
   }
+
+  static getConfigV2(opts: {
+    config: StrictIntermediateDendronConfig;
+    path: string;
+    required?: boolean;
+    currentVersion?: number;
+  }): any {
+    const { config, path, required, currentVersion } = _.defaults(opts, {
+      currentVersion: CURRENT_CONFIG_VERSION,
+    });
+    // try grabbing it.
+    const value = _.get(config, path);
+    // if it exists, return no matter what config version we are in.
+    if (!_.isUndefined(value)) {
+      return value;
+    }
+    // we failed to grab it.
+
+    // let's see if we can resolve it by looking at how it was configured in the past.
+    const mappedConfigPath = pathMap.get(path);
+    if (config.version === currentVersion) {
+      // config version is up to date.
+      // grab from default because it will either
+      // 1. be undefined
+      // 2. or have an optional but default value.
+      return _.get(DConfig.genDefaultConfig(config.version), path);
+    } else if (required) {
+      if (_.isUndefined(mappedConfigPath)) {
+        // it wasn't mapped. must be a new config. (a new namespace)
+        // we don't want to crash. grab it from current config's default
+        // throw an error with the current config's default as payload.
+        // make sure to catch it where it's used and handle it accordingly.
+        throw new DendronError({
+          message: "Failed reading configuration value.",
+          payload: _.get(DConfig.genDefaultConfig(currentVersion), path),
+        });
+      }
+      const { target } = mappedConfigPath;
+      const maybeValue = _.get(config, target);
+      if (maybeValue) {
+        // value exists at mapped target. return it.
+        return maybeValue;
+      } else {
+        // value doesn't exist at mapped target. get default of mapped target config
+        // from the default of the config version.
+        return _.get(DConfig.genDefaultConfig(config.version), target);
+      }
+    } else {
+      // it's optional.
+      if (_.isUndefined(mappedConfigPath)) {
+        // optional, not mapped, config is legacy.
+        // either it's not mapped properly, or it shouldn't exist.
+        throw new DendronError({
+          message: "Failed reading configration value.",
+          payload: "unknown config value.",
+          severity: ERROR_SEVERITY.FATAL,
+        });
+      }
+
+      const { target } = mappedConfigPath;
+      const maybeValue = _.get(config, target);
+      if (maybeValue) {
+        return maybeValue;
+      } else {
+        // mapped target doesn't have a value.
+        // mapped target may have default, but
+        // to conform with the given config's version,
+        // return default at _path_ (not mapped) of config.version
+        // if the config.version matches with the version when the target was mapped,
+        // it will return the default at that time.
+        return _.get(DConfig.genDefaultConfig(config.version), path);
+      }
+    }
+  }
 }
+
+type mappedConfigPath = {
+  // legacy config path target.
+  target: string;
+  // on which version revision it was mapped.
+  version: number;
+};
+
+const pathMap = new Map<string, mappedConfigPath>([
+  // commands namespace
+
+  // lookup namespace
+  ["commands.lookup", { target: "lookup", version: 2 }],
+  // note lookup namespace
+  ["commands.lookup.note", { target: "lookup.note", version: 2 }],
+  [
+    "commands.lookup.note.selectionMode",
+    { target: "lookup.note.selectionType", version: 2 },
+  ],
+  [
+    "commands.lookup.note.confirmVaultOnCreate",
+    { target: "lookupConfirmVaultOnCreate", version: 2 },
+  ],
+  [
+    "commands.lookup.note.leaveTrace",
+    { target: "lookup.note.leaveTrace", version: 2 },
+  ],
+
+  // insertNote namespace
+  [
+    "commands.insertNote.initialValue",
+    { target: "defaultInsertHierarchy", version: 2 },
+  ],
+
+  // insertNoteLink namepsace
+  ["commands.insertNoteLink", { target: "insertNoteLink", version: 2 }],
+  [
+    "commands.insertNoteLink.aliasMode",
+    { target: "insertNoteLink.aliasMode", version: 2 },
+  ],
+  [
+    "commands.insertNoteLink.enableMultiSelect",
+    { target: "insertNoteLink.multiSelect", version: 2 },
+  ],
+
+  // insertNoteIndex namespace
+  ["commands.insertNoteIndex", { target: "insertNoteIndex", version: 2 }],
+  [
+    "commands.insertNoteIndex.enableMarker",
+    { target: "insertNoteIndex.marker", version: 2 },
+  ],
+
+  // randomNote namespace
+  ["commands.randomNote", { target: "randomNote", version: 2 }],
+  ["commands.randomNote.include", { target: "randomNote.include", version: 2 }],
+  ["commands.randomNote.exclude", { target: "randomNote.exclude", version: 2 }],
+
+  // workspace namespace
+  ["workspace.dendronVersion", { target: "dendronVersion", version: 3 }],
+  ["workspace.workspaces", { target: "workspaces", version: 3 }],
+  ["workspace.seeds", { target: "seeds", version: 3 }],
+  ["workspace.vaults", { target: "vaults", version: 3 }],
+  ["workspace.hooks", { target: "hooks", version: 3 }],
+  ["workspace.journal", { target: "journal", version: 3 }],
+  ["workspace.scratch", { target: "scratch", version: 3 }],
+  ["workspace.graph", { target: "graph", version: 3 }],
+  ["workspace.disableTelemetry", { target: "noTelemetry", version: 3 }],
+  [
+    "workspace.enableAutoCreateOnDefinition",
+    { target: "noAutoCreateOnDefinition", version: 3 },
+  ],
+  [
+    "workspace.enableXVaultWikiLink",
+    { target: "noXVaultWikiLink", version: 3 },
+  ],
+  [
+    "workspace.enableRemoteVaultInit",
+    { target: "initializeRemoteVaults", version: 3 },
+  ],
+  [
+    "workspace.workspaceVaultSyncMode",
+    { target: "workspaceVaultSync", version: 3 },
+  ],
+  [
+    "workspace.enableAutoFoldFrontmatter",
+    { target: "autoFoldFrontmatter", version: 3 },
+  ],
+  ["workspace.maxPreviewsCached", { target: "maxPreviewsCached", version: 3 }],
+  ["workspace.maxNoteLength", { target: "maxNoteLength", version: 3 }],
+  ["workspace.feedback", { target: "feedback", version: 3 }],
+  ["workspace.apiEndpoint", { target: "apiEndpoint", version: 3 }],
+]);
