@@ -44,7 +44,6 @@ import {
   GLOBAL_STATE,
 } from "./constants";
 import { Logger } from "./logger";
-import { migrateConfig } from "./migration";
 import { StateService } from "./services/stateService";
 import { Extensions } from "./settings";
 import { setupSegmentClient } from "./telemetry";
@@ -363,13 +362,6 @@ export async function _activate(
       }
 
       ws.workspaceService = wsService;
-      const configMigrated = migrateConfig({ config: dendronConfig, wsRoot });
-      Logger.info({
-        ctx,
-        config: dendronConfig,
-        configMigrated,
-        msg: "read dendron config",
-      });
 
       // try {
       //   if (semver.gte(currentVersion, "0.63.0")) {
