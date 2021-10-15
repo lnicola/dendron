@@ -14,6 +14,7 @@ import {
   CURRENT_CONFIG_VERSION,
   StrictV1,
   DVault,
+  DendronCommandConfig,
 } from "@dendronhq/common-all";
 import {
   SegmentClient,
@@ -58,7 +59,7 @@ export const ALL_MIGRATIONS: Migrations[] = [
           const defaultCommandConfig = genDefaultCommandConfig();
           const rawDendronConfig = DConfig.getRaw(wsService.wsRoot);
           let commands = !_.isUndefined(rawDendronConfig.commands)
-            ? rawDendronConfig.commands
+            ? (rawDendronConfig.commands as DendronCommandConfig)
             : defaultCommandConfig;
 
           if (commands === null) {
@@ -74,16 +75,16 @@ export const ALL_MIGRATIONS: Migrations[] = [
             let include;
             let exclude;
             if (
-              !_.isUndefined(maybeOldRandomNote.include) &&
-              maybeOldRandomNote.include !== null
+              !_.isUndefined(maybeOldRandomNote!.include) &&
+              maybeOldRandomNote!.include !== null
             ) {
-              include = maybeOldRandomNote.include;
+              include = maybeOldRandomNote!.include;
             }
             if (
-              !_.isUndefined(maybeOldRandomNote.exclude) &&
-              maybeOldRandomNote.exclude !== null
+              !_.isUndefined(maybeOldRandomNote!.exclude) &&
+              maybeOldRandomNote!.exclude !== null
             ) {
-              exclude = maybeOldRandomNote.exclude;
+              exclude = maybeOldRandomNote!.exclude;
             }
 
             const randomNote = {} as RandomNoteConfig;
@@ -131,22 +132,22 @@ export const ALL_MIGRATIONS: Migrations[] = [
               aliasMode = defaultCommandConfig.insertNoteLink.aliasMode;
             } else {
               if (
-                _.isUndefined(maybeOldInsertNoteLink.multiSelect) ||
-                maybeOldInsertNoteLink.multiSelect === null
+                _.isUndefined(maybeOldInsertNoteLink!.multiSelect) ||
+                maybeOldInsertNoteLink!.multiSelect === null
               ) {
                 enableMultiSelect =
                   defaultCommandConfig.insertNoteLink.enableMultiSelect;
               } else {
-                enableMultiSelect = maybeOldInsertNoteLink.multiSelect;
+                enableMultiSelect = maybeOldInsertNoteLink!.multiSelect;
               }
 
               if (
-                _.isUndefined(maybeOldInsertNoteLink.aliasMode) ||
-                maybeOldInsertNoteLink.aliasMode === null
+                _.isUndefined(maybeOldInsertNoteLink!.aliasMode) ||
+                maybeOldInsertNoteLink!.aliasMode === null
               ) {
                 aliasMode = defaultCommandConfig.insertNoteLink.aliasMode;
               } else {
-                aliasMode = maybeOldInsertNoteLink.aliasMode;
+                aliasMode = maybeOldInsertNoteLink!.aliasMode;
               }
             }
             commands.insertNoteLink = {
@@ -164,11 +165,11 @@ export const ALL_MIGRATIONS: Migrations[] = [
           const maybeOldInsertNoteIndex = rawDendronConfig.insertNoteIndex;
           if (!_.isUndefined(maybeOldInsertNoteIndex)) {
             if (maybeOldInsertNoteIndex !== null) {
-              if (!_.isUndefined(maybeOldInsertNoteIndex.marker)) {
+              if (!_.isUndefined(maybeOldInsertNoteIndex!.marker)) {
                 const enableMarker =
-                  maybeOldInsertNoteIndex.marker === null
+                  maybeOldInsertNoteIndex!.marker === null
                     ? defaultCommandConfig.insertNoteIndex.enableMarker
-                    : maybeOldInsertNoteIndex.marker;
+                    : maybeOldInsertNoteIndex!.marker;
                 commands.insertNoteIndex = {
                   enableMarker,
                 } as InsertNoteIndexConfig;
@@ -210,11 +211,11 @@ export const ALL_MIGRATIONS: Migrations[] = [
             } else {
               commands.lookup = defaultCommandConfig.lookup;
             }
-          } else if (maybeOldLookup.note === null) {
+          } else if (maybeOldLookup!.note === null) {
             selectionMode = defaultCommandConfig.lookup.note.selectionMode;
             leaveTrace = defaultCommandConfig.lookup.note.leaveTrace;
           } else {
-            switch (maybeOldLookup.note.selectionType) {
+            switch (maybeOldLookup!.note.selectionType) {
               case "selectionExtract": {
                 selectionMode = LookupSelectionModeEnum.extract;
                 break;
@@ -233,12 +234,12 @@ export const ALL_MIGRATIONS: Migrations[] = [
               }
             }
             if (
-              _.isUndefined(maybeOldLookup.note.leaveTrace) ||
-              maybeOldLookup.note.leaveTrace === null
+              _.isUndefined(maybeOldLookup!.note.leaveTrace) ||
+              maybeOldLookup!.note.leaveTrace === null
             ) {
               leaveTrace = defaultCommandConfig.lookup.note.leaveTrace;
             } else {
-              leaveTrace = maybeOldLookup.note.leaveTrace;
+              leaveTrace = maybeOldLookup!.note.leaveTrace;
             }
           }
 
@@ -289,7 +290,7 @@ export const ALL_MIGRATIONS: Migrations[] = [
           dendronConfig.lookup = DConfig.genDefaultConfig()
             .lookup as LegacyLookupConfig;
           const oldLookupCreateBehavior = _.get(
-            wsConfig.settings,
+            wsConfig?.settings,
             "dendron.defaultLookupCreateBehavior",
             undefined
           ) as LegacyLookupSelectionType;
@@ -310,7 +311,7 @@ export const ALL_MIGRATIONS: Migrations[] = [
         func: async ({ dendronConfig, wsConfig }) => {
           dendronConfig.scratch = DConfig.genDefaultConfig()
             .scratch as LegacyScratchConfig;
-          if (_.get(wsConfig.settings, "dendron.defaultScratchName")) {
+          if (_.get(wsConfig?.settings, "dendron.defaultScratchName")) {
             dendronConfig.scratch.name = _.get(
               wsConfig?.settings,
               "dendron.defaultScratchName"
@@ -357,7 +358,7 @@ export const ALL_MIGRATIONS: Migrations[] = [
           dendronConfig.journal = (
             DConfig.genDefaultConfig() as StrictV1
           ).journal;
-          if (_.get(wsConfig.settings, "dendron.dailyJournalDomain")) {
+          if (_.get(wsConfig?.settings, "dendron.dailyJournalDomain")) {
             dendronConfig.journal.dailyDomain = _.get(
               wsConfig?.settings,
               "dendron.dailyJournalDomain"
