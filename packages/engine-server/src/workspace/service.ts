@@ -326,13 +326,11 @@ export class WorkspaceService {
       await fs.appendFile(gitignore, `\n${targetVault.fsPath}\n`);
     }
     // Now, initialize a repository in it
-    const git = new Git({ localUrl: targetVault.fsPath, remoteUrl });
-    if (
-      !fs.access(
-        path.join(wsRoot, targetVault.fsPath, ".git"),
-        fs.constants.F_OK
-      )
-    ) {
+    const git = new Git({
+      localUrl: path.join(wsRoot, targetVault.fsPath),
+      remoteUrl,
+    });
+    if (!(await fs.pathExists(path.join(wsRoot, targetVault.fsPath, ".git")))) {
       // Avoid initializing if a git folder already exists
       await git.init();
     }
@@ -343,6 +341,7 @@ export class WorkspaceService {
     const branch = await git.getCurrentBranch();
     // Add the contents of the vault and push to initialize the upstream
     await git.addAll();
+    await git.commit({ msg: "Set up remote vault" });
     await git.push({ remote, branch });
     // Update `dendron.yml`, adding the remote to the converted vault
     const config = this.config;
@@ -388,7 +387,7 @@ export class WorkspaceService {
     const config = this.config;
     config.vaults = config.vaults.map((vault) => {
       if (VaultUtils.isEqualV2(vault, targetVault)) {
-        vault.remote = undefined;
+        delete vault.remote;
       }
       return vault;
     });
